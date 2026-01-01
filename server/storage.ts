@@ -1,38 +1,31 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { db } from "./db";
+import { stations, type Station, type InsertStation } from "@shared/schema";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getStations(): Promise<Station[]>;
+  seedStations(): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage implements IStorage {
+  async getStations(): Promise<Station[]> {
+    return await db.select().from(stations);
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async seedStations(): Promise<void> {
+    const existing = await this.getStations();
+    if (existing.length === 0) {
+      await db.insert(stations).values([
+        { name: "Union Station", line: "1", latitude: 43.645575, longitude: -79.380729 },
+        { name: "Bloor-Yonge", line: "1/2", latitude: 43.670240, longitude: -79.386864 },
+        { name: "St. George", line: "1/2", latitude: 43.668264, longitude: -79.399778 },
+        { name: "Spadina", line: "1/2", latitude: 43.667362, longitude: -79.403698 },
+        { name: "Kipling", line: "2", latitude: 43.637536, longitude: -79.535554 },
+        { name: "Kennedy", line: "2", latitude: 43.732496, longitude: -79.263492 },
+        { name: "Finch", line: "1", latitude: 43.780706, longitude: -79.414937 },
+        { name: "Vaughan Metro Centre", line: "1", latitude: 43.794163, longitude: -79.527509 },
+      ]);
+    }
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

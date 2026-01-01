@@ -122,6 +122,8 @@ export default function Home() {
         <div className="mb-8">
           <StatusIndicator 
             distance={nearestStation?.distance ?? null} 
+            latitude={latitude}
+            longitude={longitude}
             loading={!geoReady && !geoError}
             error={geoError}
           />

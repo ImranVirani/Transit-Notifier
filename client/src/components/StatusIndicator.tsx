@@ -1,12 +1,14 @@
-import { AlertCircle, CheckCircle2, Navigation } from "lucide-react";
+import { AlertCircle, CheckCircle2, Navigation, MapPin } from "lucide-react";
 
 interface StatusIndicatorProps {
   distance: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
   loading: boolean;
   error?: string | null;
 }
 
-export function StatusIndicator({ distance, loading, error }: StatusIndicatorProps) {
+export function StatusIndicator({ distance, latitude, longitude, loading, error }: StatusIndicatorProps) {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center space-y-4 animate-in fade-in zoom-in duration-500">
@@ -87,6 +89,42 @@ export function StatusIndicator({ distance, loading, error }: StatusIndicatorPro
         <h2 className="text-3xl font-bold tracking-tight">{state.label}</h2>
         <p className="text-muted-foreground font-medium">{state.subtext}</p>
       </div>
+
+      {latitude && longitude && (
+        <div className="w-full max-w-sm bg-secondary/50 rounded-2xl p-4 border border-border animate-in fade-in slide-in-from-bottom-2 duration-700">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+              <MapPin className="w-4 h-4" />
+              <span>YOUR LOCATION</span>
+            </div>
+            <div className="text-[10px] font-mono bg-background/50 px-2 py-0.5 rounded border border-border">
+              {latitude.toFixed(4)}, {longitude.toFixed(4)}
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex-1">
+              <div className="text-2xl font-bold tabular-nums">
+                {distance >= 1000 ? (distance / 1000).toFixed(1) : distance}
+                <span className="text-sm font-medium text-muted-foreground ml-1">
+                  {distance >= 1000 ? 'km' : 'm'}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">distance to station</p>
+            </div>
+            
+            <div className="h-10 w-px bg-border" />
+            
+            <div className="flex-1 text-right">
+              <div className="text-2xl font-bold text-primary">
+                {Math.round(distance / 1.4)}
+                <span className="text-sm font-medium text-muted-foreground ml-1">sec</span>
+              </div>
+              <p className="text-xs text-muted-foreground">estimated walk</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
